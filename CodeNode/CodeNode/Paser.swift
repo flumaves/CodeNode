@@ -38,30 +38,26 @@ class Paser: NSObject {
         let matchs = regex.matches(in: source, range: range)
 
         for match in matchs {
-            let nodeTypeRange = match.range(at: 1)
+            let nodeNameRange = match.range(at: 1)
             let propertiesRange = match.range(at: 2)
-            let optionsRange = match.range(at: 3)
-            
-            guard let nodeTypeRange = Range(nodeTypeRange, in: source),
+//            let optionsRange = match.range(at: 3)
+  
+            guard let nodeTypeRange = Range(nodeNameRange, in: source),
                   let propertiesRange = Range(propertiesRange, in: source) else {
                 return nodes
             }
             
-            let nodeType = String(source[nodeTypeRange])
-//            let properties = String(source[propertiesRange])
-//                                .components(separatedBy: ",\n")
-//                                .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
-//                                .filter { !$0.isEmpty }
+            var nodeName = String(source[nodeTypeRange])
             let properties = parseProperties(String(source[propertiesRange]))
+
+            // 既没有 nodeName 也没有 properties
+            if nodeName.count == 0 && properties.count == 0 { continue }
+            // 只有 properties
+            if nodeName.count == 0 && properties.count > 0 {
+                nodeName = "Untitled Node"
+            }
             
-//            var options: [String: String] = [:]
-//            
-//            if let optionsRange = Range(optionsRange, in: source) {
-//                let optionsText = String(source[optionsRange])
-//                options = parseOptions(optionsText)
-//            }
-            
-            let node = Node(name: nodeType, properties: properties)
+            let node = Node(name: nodeName, properties: properties)
             
             nodes.append(node)
         }
