@@ -17,6 +17,10 @@ class SelectionHandler: ObservableObject {
     @Published var draggingNodes: [DragInfo] = []
     @Published private(set) var selectedNodeIDs: [NodeID] = []
     
+    func deselect() {
+        selectedNodeIDs = []
+    }
+    
     func selectNode(_ node: Node) {
         selectedNodeIDs = [node.id]
     }

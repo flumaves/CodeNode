@@ -141,11 +141,11 @@ extension Nodes {
         // find nodes already exist, hold their position
         for i in 0..<newNodes.count {
             for j in 0..<nodes.count {
-                var newNode = newNodes[i]
-                let node = nodes[j]
+                let newNode = newNodes[i]
+                var node = nodes[j]
                 if newNode.name == node.name {
-                    newNode.position = node.position
-                    newNodes[i] = newNode
+                    node.properties = newNode.properties
+                    newNodes[i] = node
                 }
             }
         }
