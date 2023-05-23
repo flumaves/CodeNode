@@ -33,6 +33,8 @@ class FileCenter {
     
     /// 保存文件
     func save(_ data: FileData, to file: String) throws {
+        if file.count == 0 { return }
+        
         let fileURL = folderURL?.appendingPathComponent(file)
         
         guard let fileURL = fileURL else { return }
@@ -75,5 +77,17 @@ class FileCenter {
         
         let decoder = JSONDecoder()
         return try decoder.decode(FileData.self, from: jsonData)
+    }
+    
+    
+    /// rename file with fileName
+    /// file is the oldFileName
+    func rename(_ file: String, with newfileName: String) throws {
+        let oldFileURL = folderURL?.appendingPathComponent(file)
+        let newFileURL = folderURL?.appendingPathComponent(newfileName)
+        
+        guard let oldFileURL = oldFileURL, let newFileURL = newFileURL else { return }
+        
+        try FileManager.default.moveItem(at: oldFileURL, to: newFileURL)
     }
 }

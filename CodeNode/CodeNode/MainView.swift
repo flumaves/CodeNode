@@ -9,25 +9,28 @@ import Foundation
 import SwiftUI
 
 struct MainView: View {
+    
     var body: some View {
         
         NavigationView {
             SideBarView()
-            
             DetailView()
         }
-        .navigationTitle("")
     }
 }
 
 struct SideBarView: View {
+    
     var body: some View {
         List {
             if let files = FileCenter().readFiles() {
                 ForEach(files, id: \.self) { fileName in
-                    NavigationLink(destination: DetailView(fileName)) {
+                    NavigationLink {
+                        DetailView(fileName)
+                    } label: {
                         Label(fileName, systemImage: "doc.text")
                     }
+
                 }
             }
         }
@@ -52,7 +55,7 @@ struct SideBarView: View {
 
 struct DetailView: View {
     
-    @ObservedObject var nodeManager = NodeManager()
+    @ObservedObject var nodeManager =  NodeManager()
     @ObservedObject var selection = SelectionHandler()
     
     @State private var isRightViewVisable = true
@@ -100,23 +103,24 @@ struct DetailView: View {
                 }
             }
             
-            ToolbarItem(placement: .navigation) {
-                if isEditing {
-                    TextField("", text: $nodeManager.file)
-                        .textFieldStyle(.roundedBorder)
-                        .onSubmit {
+//            ToolbarItem(placement: .navigation) {
+//                if isEditing {
+//                    TextField("", text: $nodeManager.newFile)
+//                        .textFieldStyle(.roundedBorder)
+//                        .onSubmit {
 //                            isEditing = false
-                        }
-                        .font(.title2)
-                } else {
-                    Text(nodeManager.file)
-                        .font(.title2)
-
-                        .onTapGesture {
-                            isEditing = true
-                        }
-                }
-            }
+//                            nodeManager.renameFile()
+//                        }
+//                        .font(.title2)
+//                } else {
+//                    Text(nodeManager.file)
+//                        .font(.title2)
+//
+//                        .onTapGesture {
+//                            isEditing = true
+//                        }
+//                }
+//            }
         }
     }
     

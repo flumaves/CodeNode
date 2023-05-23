@@ -19,6 +19,9 @@ struct GraphView: View {
     @State private var currentScale: CGFloat = 1.0
     @State private var currentOffSet = CGSize.zero
     
+    let minScale: CGFloat = 0.1
+    let maxScale: CGFloat = 4
+    
     var body: some View {
         ZStack {
             Rectangle()
@@ -57,10 +60,15 @@ struct GraphView: View {
             SimultaneousGesture(
                 MagnificationGesture()
                     .updating($scale, body: { value, scale, _ in
-                        scale = value.magnitude
+                        var newScale = value.magnitude
+
+                        if newScale < 0.5 { newScale = 0.5 }
+                        if newScale > 4 { newScale = 4 }
+
+//                        scale = newScale
                     })
                     .onEnded({ value in
-                        currentScale *= value.magnitude
+//                        currentScale *= value.magnitude
                     }),
                 DragGesture()
                     .updating($offSet, body: { value, offSet, _ in

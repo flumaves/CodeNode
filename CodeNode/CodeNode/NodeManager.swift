@@ -10,8 +10,18 @@ import SwiftUI
 
 /// 管理 node
 class NodeManager: ObservableObject {
+    
+    @Published var files: [String]?
+    
     /// 对应的文件的名字
-    @Published var file: String = ""
+    @Published var file: String = "" {
+        didSet {
+            newFile = file
+        }
+    }
+    
+    /// 修改的文件名字
+    @Published var newFile: String = ""
     
     /// 选中的 node
     @Published var selectedNodeIndex: Int?
@@ -31,9 +41,18 @@ class NodeManager: ObservableObject {
 /// 处理文件处理相关
 extension NodeManager {
     
+    /// 读取文件夹中的文件
+    func loadFiles() -> [String]? {
+        files = FileCenter().readFiles()
+        
+        return files
+    }
+    
     /// 从 file 中读取内容
     func loadFile(_ file: String?) {
         guard let file = file else { return }
+        
+        if file.count == 0 { return }
 
         do {
             let fileData = try FileCenter().readFile(file)
@@ -75,6 +94,21 @@ extension NodeManager {
             
         } catch {
             print("ERROR: create new file failed --- \(error.localizedDescription)")
+        }
+    }
+    
+    /// 修改文件名
+    func renameFile() {
+        // 命名长度需要大于 0
+        if newFile.count == 0 { return }
+        
+        do {
+            try FileCenter().rename(file, with: newFile)
+            
+            file = newFile
+            files = self.loadFiles()
+        } catch {
+            print("ERROR: rename file failed --- \(error.localizedDescription)")
         }
     }
 }
