@@ -26,14 +26,14 @@ class NodeManager: ObservableObject {
     /// 选中的 node
     @Published var selectedNodeIndex: Int?
     
-    @Published private(set) var model: Nodes = Nodes()
+    @Published private(set) var graph: NodesGraph = NodesGraph()
     
     var nodes: [Node]? {
-        return model.nodes
+        return graph.nodes
     }
     
     var text: String = "" {
-        didSet { model.repaser(text) }
+        didSet { graph.repaser(text) }
     }
 }
 
@@ -60,7 +60,7 @@ extension NodeManager {
             guard let fileData = fileData else { return }
             
             self.text = fileData.text
-            self.model = Nodes(nodes: fileData.nodes)
+            self.graph = NodesGraph(nodes: fileData.nodes)
             
             self.file = file
         } catch {
@@ -72,7 +72,7 @@ extension NodeManager {
     
     /// 保存文件
     func saveFile() {
-        let fileData = FileData(text: text, nodes: model.nodes)
+        let fileData = FileData(text: text, nodes: graph.nodes)
         do {
             try FileCenter().save(fileData, to: file)
         } catch {
@@ -90,7 +90,7 @@ extension NodeManager {
             
             file = newFile
             text = fileData.text
-            model.nodes = fileData.nodes
+            graph.nodes = fileData.nodes
             
         } catch {
             print("ERROR: create new file failed --- \(error.localizedDescription)")
@@ -118,7 +118,7 @@ extension NodeManager {
 extension NodeManager {
     
     func change(node: Node, location: CGPoint) {
-        model.change(node: node, location: location)
+        graph.change(node: node, location: location)
     }
 }
 
@@ -127,14 +127,28 @@ extension NodeManager {
 
 
 
-
-struct Nodes {
+/// 一个由 nodeModel 组成的图
+struct NodesGraph {
+    /// 节点
     var nodes: [Node] = []
+    
+    /// 图中所有的边， key 为 source， value 为 destination
+    func allEdges() -> [Node: [Node]] {
+        var edges: [Node: [Node]] = [:]
+        
+        for node in nodes {
+            if node.edgesTo?.count != 0 {
+                edges[node] = node.edgesTo!
+            }
+        }
+        
+        return edges
+    }
 }
 
 
-extension Nodes {
-    
+extension NodesGraph {
+    /// 重新解析 text，对 nodes 进行更新，保留原本已经存在的
     mutating func repaser(_ text: String) {
         var newNodes = Paser().parse(text)
         
@@ -154,7 +168,7 @@ extension Nodes {
     }
 }
 
-extension Nodes {
+extension NodesGraph {
     
     mutating func change(node: Node, location: CGPoint) {
         guard let index = nodes.firstIndex(of: node) else { return }
@@ -166,7 +180,7 @@ extension Nodes {
     }
 }
 
-extension Nodes {
+extension NodesGraph {
     mutating func replaceNodeIn(index: Int, with newNode: Node) {
         nodes[index] = newNode
     }

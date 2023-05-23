@@ -14,7 +14,8 @@ struct Node: Hashable, Identifiable, Codable {
     var name: String?
     // 节点拥有的属性，以 NSString 的形式保存
     var properties: [String]?
-    
+    // 到 node 的边
+    var edgesTo: [Node]?
     
     var position: CGPoint = .zero
     
