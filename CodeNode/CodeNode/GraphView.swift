@@ -89,5 +89,5 @@ struct GraphView: View {
                 )
             )
         }
-        }
+    }
 }

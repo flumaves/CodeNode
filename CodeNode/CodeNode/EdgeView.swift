@@ -20,6 +20,10 @@ struct EdgeView: View {
         Path { path in
             path.move(to: startPoint)
             
+            if (startPoint.x == endPoint.x || startPoint.y == endPoint.y) {
+                path.addLine(to: endPoint)
+                return
+            }
 
             var arcCenter: CGPoint = .zero
             var clockwise: Bool = false
@@ -58,6 +62,7 @@ struct EdgeView: View {
                 clockwise: clockwise
             )
             path.addLine(to: endPoint)
+
         }.stroke(.blue, lineWidth: 2)
     }
 }
@@ -72,6 +77,8 @@ struct EdgeView_Previews: PreviewProvider {
             EdgeView(startPoint: CGPoint(x: 0, y: 100), endPoint: CGPoint(x: 100, y: 0))
             
             EdgeView(startPoint: CGPoint(x: 100, y: 100), endPoint: CGPoint(x: 0, y: 0))
+            
+            EdgeView(startPoint: CGPoint(x: 100, y: 0), endPoint: CGPoint(x: 100, y: 100))
         }
         .padding()
     }

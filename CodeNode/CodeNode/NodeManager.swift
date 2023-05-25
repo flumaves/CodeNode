@@ -32,8 +32,21 @@ class NodeManager: ObservableObject {
         return graph.nodes
     }
     
+    var edges: Array<(source: Node, destination: Node)>? {
+        return graph.allEdges()
+    }
+    
     var text: String = "" {
-        didSet { graph.repaser(text) }
+        didSet {
+            paser(text)
+        }
+    }
+    
+    /// 重新解析文本
+    private func paser(_ text: String) {
+        let nodes = Paser().parse(text)
+        
+        graph.update(nodes)
     }
 }
 
@@ -111,6 +124,8 @@ extension NodeManager {
             print("ERROR: rename file failed --- \(error.localizedDescription)")
         }
     }
+    
+//    func paser(_ text:)
 }
 
 
@@ -120,6 +135,11 @@ extension NodeManager {
     func change(node: Node, location: CGPoint) {
         graph.change(node: node, location: location)
     }
+    
+//    func change(node: Node, frame: CGRect) {
+//        print(frame)
+//        graph.change(node: node, frame: frame)
+//    }
 }
 
 
@@ -133,12 +153,13 @@ struct NodesGraph {
     var nodes: [Node] = []
     
     /// 图中所有的边， key 为 source， value 为 destination
-    func allEdges() -> [Node: [Node]] {
-        var edges: [Node: [Node]] = [:]
+    func allEdges() -> [(Node, Node)] {
+        var edges: [(Node, Node)] = []
         
-        for node in nodes {
-            if node.edgesTo?.count != 0 {
-                edges[node] = node.edgesTo!
+        for source in nodes {
+            guard let destinations = source.edgesTo else { continue }
+            for destination in destinations {
+                edges.append((source, destination))
             }
         }
         
@@ -148,18 +169,20 @@ struct NodesGraph {
 
 
 extension NodesGraph {
-    /// 重新解析 text，对 nodes 进行更新，保留原本已经存在的
-    mutating func repaser(_ text: String) {
-        var newNodes = Paser().parse(text)
+    /// 更新节点
+    mutating func update(_ newNodes: [Node]) {
+        let oldNodes = nodes
+        var newNodes = newNodes
         
-        // find nodes already exist, hold their position
-        for i in 0..<newNodes.count {
-            for j in 0..<nodes.count {
-                let newNode = newNodes[i]
-                var node = nodes[j]
-                if newNode.name == node.name {
-                    node.properties = newNode.properties
-                    newNodes[i] = node
+        
+        for i in 0..<oldNodes.count {
+            for j in 0..<newNodes.count {
+                var newNode = newNodes[j], oldNode = oldNodes[i]
+                
+                if newNode.name == oldNode.name || newNode.properties == oldNode.properties {
+                    newNode.position = oldNode.position
+                    
+                    newNodes[j] = newNode
                 }
             }
         }
@@ -176,12 +199,21 @@ extension NodesGraph {
         var newNode = nodes[index]
         newNode.position = location
         
-        replaceNodeIn(index: index, with: newNode)
+        replaceNodeIn(index, with: newNode)
     }
+    
+//    mutating func change(node: Node, frame: CGRect) {
+//        guard let index = nodes.firstIndex(of: node) else { return }
+//
+//        var newNode = nodes[index]
+//        newNode.frame = frame
+//
+//        replaceNodeIn(index, with: newNode)
+//    }
 }
 
 extension NodesGraph {
-    mutating func replaceNodeIn(index: Int, with newNode: Node) {
+    mutating func replaceNodeIn(_ index: Int, with newNode: Node) {
         nodes[index] = newNode
     }
 }

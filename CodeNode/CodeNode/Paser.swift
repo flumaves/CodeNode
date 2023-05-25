@@ -62,6 +62,9 @@ class Paser: NSObject {
             nodes.append(node)
         }
         
+        // 解析节点间的关系
+//        nodes = parseRelationShip(between: nodes)
+        
         return nodes
     }
         
@@ -95,6 +98,21 @@ class Paser: NSObject {
         }
         
         return parsedProperties
+    }
+    
+    private func parseRelationShip(between nodes: [Node]) -> [Node]{
+        guard var node = nodes.first else { return nodes }
+        
+        var otherNodes = nodes
+        otherNodes.removeFirst()
+        node.edgesTo = otherNodes
+        
+        var result = nodes
+        result.removeFirst()
+        result.insert(node, at: 0)
+        
+        
+        return result
     }
 }
 

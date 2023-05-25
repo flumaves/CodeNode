@@ -18,6 +18,7 @@ struct Node: Hashable, Identifiable, Codable {
     var edgesTo: [Node]?
     
     var position: CGPoint = .zero
+//    var frame: CGRect = .zero
     
     init(name: String? = nil, properties: [String]? = []) {
         self.name = name
